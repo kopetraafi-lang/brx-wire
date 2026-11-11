@@ -1,0 +1,321 @@
+	<!DOCTYPE html>
+	<html lang="id">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title>Brx Wire — Ultimate Free Fire Private Panel</title>
+	    <style>
+	        :root {
+	            --bg-color: #0b0f19;
+	            --card-bg: rgba(17, 24, 39, 0.85);
+	            --neon-purple: #8b5cf6;
+	            --neon-blue: #3b82f6;
+	            --text-main: #f3f4f6;
+	        }
+	        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+	        body {
+	            background-color: var(--bg-color);
+	            color: var(--text-main);
+	            min-height: 100vh;
+	            display: flex;
+	            justify-content: center;
+	            align-items: center;
+	            background-image: radial-gradient(circle at 50% 20%, #1e1b4b 0%, var(--bg-color) 70%);
+	            padding: 15px;
+	            overflow: hidden;
+	        }
+
+	        /* Animasi Layar Loading Awal */
+	        #loading-screen {
+	            position: fixed;
+	            top: 0; left: 0; width: 100%; height: 100%;
+	            background: #0b0f19;
+	            display: flex;
+	            flex-direction: column;
+	            justify-content: center;
+	            align-items: center;
+	            z-index: 9999;
+	            transition: opacity 0.5s ease;
+	        }
+	        .spinner {
+	            width: 50px; height: 50px;
+	            border: 4px solid rgba(139, 92, 246, 0.2);
+	            border-top: 4px solid var(--neon-purple);
+	            border-radius: 50%;
+	            animation: spin 1s linear infinite;
+	            margin-bottom: 16px;
+	            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+	        }
+	        .loading-text {
+	            font-size: 0.9rem;
+	            letter-spacing: 2px;
+	            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+	            -webkit-background-clip: text;
+	            -webkit-text-fill-color: transparent;
+	            font-weight: bold;
+	        }
+	        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+	        /* Kontainer Utama Panel */
+	        .container { width: 100%; max-width: 420px; display: none; }
+	        .card {
+	            background: var(--card-bg);
+	            backdrop-filter: blur(14px);
+	            border: 1px solid rgba(139, 92, 246, 0.3);
+	            border-radius: 16px;
+	            padding: 22px;
+	            box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+	            text-align: center;
+	        }
+	        h1 {
+	            font-size: 1.7rem;
+	            margin-bottom: 4px;
+	            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+	            -webkit-background-clip: text;
+	            -webkit-text-fill-color: transparent;
+	            letter-spacing: 1px;
+	        }
+	        p.subtitle { font-size: 0.75rem; color: #9ca3af; margin-bottom: 12px; }
+	        .status-badge {
+	            display: inline-block;
+	            background: rgba(239, 68, 68, 0.15);
+	            color: #f87171;
+	            border: 1px solid rgba(239, 68, 68, 0.3);
+	            padding: 3px 10px;
+	            border-radius: 20px;
+	            font-size: 0.65rem;
+	            font-weight: 600;
+	            margin-bottom: 14px;
+	            transition: 0.3s;
+	        }
+	        .status-badge.active-status {
+	            background: rgba(16, 185, 129, 0.15);
+	            color: #34d399;
+	            border-color: rgba(16, 185, 129, 0.3);
+	        }
+
+	        /* Daftar Fitur (Default OFF) */
+	        .feature-list {
+	            text-align: left;
+	            margin-bottom: 14px;
+	            background: rgba(0, 0, 0, 0.25);
+	            padding: 10px 12px;
+	            border-radius: 10px;
+	            border: 1px solid rgba(255, 255, 255, 0.05);
+	        }
+	        .feature-item {
+	            display: flex;
+	            justify-content: space-between;
+	            align-items: center;
+	            padding: 6px 0;
+	            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	        }
+	        .feature-item:last-child { border-bottom: none; }
+	        .feature-item span { color: #d1d5db; font-size: 0.8rem; font-weight: 500; }
+
+	        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+	        .switch input { opacity: 0; width: 0; height: 0; }
+	        .slider {
+	            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+	            background-color: #374151; transition: .3s; border-radius: 20px;
+	        }
+	        .slider:before {
+	            position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+	            background-color: white; transition: .3s; border-radius: 50%;
+	        }
+	        input:checked + .slider {
+	            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+	            box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+	        }
+	        input:checked + .slider:before { transform: translateX(20px); }
+
+	        /* Konfigurasi Target Aim */
+	        .target-config {
+	            text-align: left; background: rgba(0, 0, 0, 0.3);
+	            padding: 10px 12px; border-radius: 8px; margin-bottom: 14px;
+	            border: 1px solid rgba(139, 92, 246, 0.2);
+	        }
+	        .target-config label {
+	            display: block; font-size: 0.7rem; color: #9ca3af;
+	            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+	        }
+	        .aim-options { display: flex; gap: 6px; }
+	        .aim-btn {
+	            flex: 1; background: rgba(31, 41, 55, 0.8);
+	            border: 1px solid rgba(139, 92, 246, 0.3); color: #9ca3af;
+	            padding: 6px 0; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer;
+	        }
+	        .aim-btn.active {
+	            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+	            color: white; border-color: transparent; box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+	        }
+
+	        /* Hiddify VPN Tunnel Section */
+	        .vpn-section {
+	            background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(59, 130, 246, 0.3);
+	            border-radius: 8px; padding: 10px 12px; margin-bottom: 16px;
+	            display: flex; justify-content: space-between; align-items: center;
+	        }
+	        .vpn-info { text-align: left; }
+	        .vpn-info span { display: block; font-size: 0.75rem; font-weight: bold; color: #38bdf8; }
+	        .vpn-info small { font-size: 0.6rem; color: #9ca3af; }
+	        .vpn-toggle {
+	            background: #1f2937; border: 1px solid #3b82f6; color: #38bdf8;
+	            padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer;
+	        }
+	        .vpn-toggle.connected {
+	            background: #059669; border-color: #10b981; color: white; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+	        }
+
+	        @keyframes pulseGlow {
+	            0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
+	            50% { box-shadow: 0 0 22px rgba(139, 92, 246, 0.8), 0 0 8px rgba(59, 130, 246, 0.5); }
+	            100% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
+	        }
+
+	        .btn {
+	            display: block; width: 100%; padding: 12px;
+	            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+	            color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 0.9rem;
+	            cursor: pointer; text-decoration: none; position: relative; overflow: hidden;
+	            animation: pulseGlow 2.5s infinite ease-in-out;
+	            transition: transform 0.2s ease, filter 0.2s ease;
+	        }
+	        .btn:hover { transform: translateY(-2px) scale(1.02); filter: brightness(1.15); }
+	        .btn:active { transform: translateY(1px) scale(0.98); }
+	        .footer { margin-top: 12px; font-size: 0.6rem; color: #6b7280; }
+	    </style>
+	</head>
+	<body>
+
+	    <!-- Layar Animasi Loading Awal -->
+	    <div id="loading-screen">
+	        <div class="spinner"></div>
+	        <div class="loading-text">LOADING BRX WIRE...</div>
+	    </div>
+
+	    <!-- Kontainer Panel Utama -->
+	    <div class="container" id="main-panel">
+	        <div class="card">
+	            <h1>BRX WIRE</h1>
+	            <p class="subtitle">Ultimate Free Fire Private Panel & Hiddify VPN</p>
+	            
+	            <div class="status-badge" id="status-badge">● STATUS: OFF</div>
+
+	            <!-- Fitur Utama dengan Toggle Switch (Default OFF) -->
+	            <div class="feature-list">
+	                <div class="feature-item">
+	                    <span>ESP Box / Bone</span>
+	                    <label class="switch"><input type="checkbox" id="feat-esp" onchange="toggleFeature('ESP', this.checked)"><span class="slider"></span></label>
+	                </div>
+	                <div class="feature-item">
+	                    <span>Aim Lock / FOV</span>
+	                    <label class="switch"><input type="checkbox" id="feat-aim" onchange="toggleFeature('AimLock', this.checked)"><span class="slider"></span></label>
+	                </div>
+	                <div class="feature-item">
+	                    <span>No Recoil 100%</span>
+	                    <label class="switch"><input type="checkbox" id="feat-recoil" onchange="toggleFeature('NoRecoil', this.checked)"><span class="slider"></span></label>
+	                </div>
+	                <div class="feature-item">
+	                    <span>High Damage / Speed</span>
+	                    <label class="switch"><input type="checkbox" id="feat-speed" onchange="toggleFeature('SpeedDamage', this.checked)"><span class="slider"></span></label>
+	                </div>
+	            </div>
+
+	            <!-- Panel Pengaturan Target Aim -->
+	            <div class="target-config">
+	                <label>Aim Target Bone Select</label>
+	                <div class="aim-options">
+	                    <button class="aim-btn" onclick="setAimTarget(this, 'Head')">Head</button>
+	                    <button class="aim-btn active" onclick="setAimTarget(this, 'Neck')">Neck</button>
+	                    <button class="aim-btn" onclick="setAimTarget(this, 'Body')">Body</button>
+	                </div>
+	            </div>
+
+	            <!-- Panel VPN Bypass Hiddify Tunnel (Otomatis Buka Aplikasi Hiddify) -->
+	            <div class="vpn-section">
+	                <div class="vpn-info">
+	                    <span>Hiddify VPN Tunnel</span>
+	                    <small id="vpn-status-text">Status: Disconnected</small>
+	                </div>
+	                <button id="vpn-btn" class="vpn-toggle" onclick="toggleVpn()">CONNECT</button>
+	            </div>
+
+	            <!-- Tombol Launch Eksekusi Intent Free Fire -->
+	            <button class="btn" onclick="launchFreeFire()">LAUNCH & OPEN GAME</button>
+	            
+	            <div class="footer">
+	                Protected by Brx Security System &copy; 2026
+	            </div>
+	        </div>
+	    </div>
+
+	    <script>
+	        // Simulasi Animasi Loading Awal (1.8 detik)
+	        window.addEventListener('load', () => {
+	            setTimeout(() => {
+	                const loader = document.getElementById('loading-screen');
+	                loader.style.opacity = '0';
+	                setTimeout(() => {
+	                    loader.style.display = 'none';
+	                    document.getElementById('main-panel').style.display = 'block';
+	                }, 500);
+	            }, 1800);
+	        });
+
+	        let currentAim = "Neck";
+	        let vpnActive = false;
+	        const featuresState = { ESP: false, AimLock: false, NoRecoil: false, SpeedDamage: false };
+
+	        function setAimTarget(element, target) {
+	            document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('active'));
+	            element.classList.add('active');
+	            currentAim = target;
+	        }
+
+	        function toggleFeature(name, status) {
+	            featuresState[name] = status;
+	            checkGlobalStatus();
+	        }
+
+	        function checkGlobalStatus() {
+	            const anyActive = Object.values(featuresState).some(val => val === true);
+	            const badge = document.getElementById('status-badge');
+	            if (anyActive) {
+	                badge.innerText = "● STATUS: ACTIVE";
+	                badge.classList.add('active-status');
+	            } else {
+	                badge.innerText = "● STATUS: OFF";
+	                badge.classList.remove('active-status');
+	            }
+	        }
+
+	        function toggleVpn() {
+	            const btn = document.getElementById('vpn-btn');
+	            const statusText = document.getElementById('vpn-status-text');
+	            vpnActive = !vpnActive;
+	            
+	            if (!vpnActive) {
+	                btn.classList.remove('connected');
+	                btn.innerText = 'CONNECT';
+	                statusText.innerText = 'Status: Disconnected';
+	            } else {
+	                btn.classList.add('connected');
+	                btn.innerText = 'DISCONNECT';
+	                statusText.innerText = 'Status: Hiddify Connected';
+	                
+	                // Intent Hiddify dengan skema aman langsung buka aplikasi
+	                setTimeout(() => {
+	                    window.location.href = "intent://#Intent;package=app.hiddify.com;scheme=hiddify;end;";
+	                }, 300);
+	            }
+	        }
+
+	        function launchFreeFire() {
+	            // Intent Free Fire langsung buka aplikasi tanpa ke Play Store
+	            const ffPackage = "com.dts.freefireth"; // Ganti dengan com.dts.freefiremax jika memakai versi Max
+	            window.location.href = "intent://#Intent;package=" + ffPackage + ";action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;end;";
+	        }
+	    </script>
+	</body>
+	</html>
